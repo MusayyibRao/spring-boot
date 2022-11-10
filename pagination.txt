@@ -1,0 +1,81 @@
+class ResponseData<T>
+{
+
+int recordCount;
+T response;
+
+}
+
+
+/*
+
+-----start Service class-------
+
+*/
+
+
+public List<ClassName> findDataWithSorting(String field)
+{
+  return repo.findAll(Sort.by(Sort.Direction.ASC,field));
+}
+
+
+public Page<ClassName> findDataWithPagination(int offset,int pageSize)
+{
+   Page<ClassName> classname=  repo.findAll(PageRequest.of(offset,pageSize));
+  return classname;
+}
+
+public Page<ClassName> findDataWithPagination(int offset,int pageSize,String field)
+{
+   Page<ClassName> classname=  repo.findAll(PageRequest.of(offset,pageSize).withSort(Sort.by(field)));
+   return classname;
+
+}
+
+
+/*
+
+-----end Service class-------
+
+*/
+
+
+/*
+
+-----start Controller class-------
+
+*/
+
+
+@GetMapping("/{field}")
+public  ResponseData<List<ClassName>> getDataWithSort(@PathVariable String field)
+{
+
+List<ClassName> allData=service.findDataWithSorting(field);
+
+return new ResponseData<>(allData.size(),allData);
+
+}
+
+
+@GetMapping("/{offset}/{pageSize}")
+public  ResponseData<Page<ClassName>> getDataWithSort(@PathVariable int offset,@PathVariable int pageSize)
+{
+
+Page<ClassName> pageData=service.findDataWithPagination(offset,pageSize);
+
+return new ResponseData<>(pageData.getSize(),pageData);
+
+}
+
+
+
+/*
+
+-----end Controller class-------
+
+*/
+
+
+
