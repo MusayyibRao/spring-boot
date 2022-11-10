@@ -1,0 +1,21 @@
+
+
+@PostMapping("/")
+public String CreateOrder(@RequestBody Map<String ,Object> data) throws RazorpayException
+{
+
+int amount=Integer.parseInt(data.get("amount").toString());
+ 
+RazorpayClient client=new RazorpayClient(key, secret)
+
+//Create Order
+ 
+JSONObject option= new JSONObject();
+option.put("amount",amount*100);
+option.put("currency",INR);
+option.put("receipt","txt_12345");
+
+Order order=client.Orders.create(option);
+
+return order.toString();
+}
