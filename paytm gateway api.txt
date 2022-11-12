@@ -1,0 +1,144 @@
+/*
+ add paytm-checksum jar
+*/
+
+/*
+
+/*
+application.properties:-
+              paytm.mobile=
+              paytm.email=              
+/*
+
+application.yml:-
+*/                 paytm.payment:
+                   sandbox: 
+                      merchantId:
+                      merchantKey:
+                      channelId:
+                      website:
+                      industryTypeId:
+                      paytmUrl:
+                      callbackUrl:
+                      details:
+                        MID: ${paytm.payment.sandbox.merchantId}
+                        CHANNEL_ID: ${paytm.payment.sandbox.merchantKey}
+                        INDUSTRY_TYPE_ID:${paytm.payment.sandbox.industrytypeid}
+                        WEBSITE:${paytm.payment.sandbox.website}
+                        CALLBACK_URL: ${paytm.payment.sandbox.callbackUrl} 
+
+
+
+
+
+/*
+create entity class
+*/
+@ConfigurationProperties("paytm.payment.sandbox")
+class paytmDetails
+{
+ merchentId;
+ merchentKey;
+ channelId;
+ website;
+ industryTypeId;
+ paytmUrl;
+ Map<String,String> details;  
+  
+}
+
+
+/*
+create controller class
+*/
+
+
+class ControllerPayment
+{
+
+
+Environment enver;
+
+
+@PostMapping("/")
+public ModelAndView getRedirect(@RequestParam(name=CUST_ID) String customerId,
+                                @RequestParam(name=TXT_AMOUNT) String transactionAmount,
+                                @RequestParam(name=ORDER_ID) String orderId)throws Exception
+{
+
+ModelAndView modelAndView=new ModelAndView("redirect:"+paytmDetails.getpaytmUrl());
+TreeMap<String ,String> parmt=new TreeMap<>();
+paytmDetails.getDetails().forEach(k,v)->parmt.put(k,v);
+
+parmt.put("MOBILE_NO",enver.getProperty("paytm.mobile"));
+parmt.put("EMAIL",enver.getProperty("paytm.email "));
+parmt.put("ORDER_ID",orderId);
+parmt.put("TXT_AMOUNT",transactionAnount);
+parmt.put("CUST_ID",customerId);
+String checksum= getCheckSum(parmt);
+modelAndView.addAllObjects(parmt);
+return  modelAndView;
+}
+
+
+@Postmapping("/")
+public String getResponse(HttpServletRequest request,Model model)
+{
+
+Map<String ,String > map=request.getParameterMap();
+TreeMap<String,String> paramt=new TreeMap<>();
+map.forEach(k,v)->paramt.put(k,v[0]);
+
+String paytmChecksum="";
+
+if(map.containsKey("CHECKSUMHASH"))
+{
+ paytmChecksum=map.get("CHECKSUMHASH").[0];
+}
+
+String result;
+boolean isValidChecksum=false;
+try{
+isValidChecksum= validateCheckSum(paramt,paytmChecksum);
+if(isValidChecksum && paramt.containsKey("RESPCODE"))
+{
+     if(paramt.get("RESPCODE").equals("01"))
+       {
+        result="Payment Successful";
+       } 
+    else{  
+          result = "Payment Failed";
+        }
+}
+
+else{
+      result=" Checksum mismatched";
+    }
+  }
+
+  catch(Exception e){
+                    result=e.toString();
+                    }
+   
+         model.addAttribute("result",result);
+         paramt.remove("CHECKSUMHASH");
+         model.addattribute("paramt",paramt);
+     result "";
+
+}
+
+
+   private boolean validateCheckSum(TreeMap<String,String> paramt,String paytmChecksum)
+   {
+      return CheckSumServiceHelper.getCheckSumServiceHelper.verifycheckSum(paytmDetails.getMerchantKey(),paramt,paytmChecksum); 
+    }
+
+
+private String getChechSum(TreeMap<String ,String> parmt)throws Exception{
+
+  return CheckSumServiceHelper.getCheckSumServiceHelper.generateCheckSum(paytmDetails.getMerchantKey(),parmt)
+}
+
+
+ 
+}
