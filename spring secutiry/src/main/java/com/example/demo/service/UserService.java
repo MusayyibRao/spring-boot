@@ -23,7 +23,11 @@ public class UserService {
       list.add(new User("abc","abcd","abcd123@gmail.com","User"));
     }
 
-
+ /* 
+    public List<User> getData(){
+    return this.list;
+     }
+*/
     public List<User> getData()
     {
 
